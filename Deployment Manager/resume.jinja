@@ -57,7 +57,7 @@ resources:
   - name: cloud-resume-lb-url-map
     type: compute.v1.urlMap
     properties:
-      defaultService: $(ref.my-static-site-backend.selfLink)
+      defaultService: $(ref.my-staticbackend1.selfLink)
 
   # Add TargetHTTPSProxy
   - name: cloud-resume-target-proxy
