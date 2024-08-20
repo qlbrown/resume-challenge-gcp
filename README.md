@@ -1,4 +1,5 @@
-Cloud Resume Challenge GCP Edition
+#Cloud Resume Challenge GCP Edition
+
 This is my journey in completing the Cloud Resume Challenge for GCP. I performed the following actions to complete the challenge:
 
 Wrote resume in HTML ( I used a template for this)
