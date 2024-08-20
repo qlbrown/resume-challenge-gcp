@@ -1,0 +1,18 @@
+{
+    "name": "Trigger-function",
+    "version": "1.0.0",
+    "description": "A Cloud Function for handling visitor counts",
+    "main": "index.js",
+    "scripts": {
+      "start": "node index.js"
+    },
+    "dependencies": {
+      "express": "^4.18.2",
+      "@google-cloud/functions-framework": "^3.0.0",
+      "@google-cloud/firestore": "^6.8.0",
+      "cors": "^2.8.5"
+    },
+    "engines": {
+      "node": "20.x"
+    }
+  }

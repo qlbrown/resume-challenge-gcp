@@ -1,0 +1,81 @@
+resources:
+  # Create bucket
+  - name: my-cloud-resume-bucket
+    type: gcp-types/storage-v1:storage.buckets
+    properties:
+      name: my-cloud-resume-bucket
+      storageClass: STANDARD
+      location: {{ properties['region'] }}
+      website:
+        mainPageSuffix: index.html
+        notFoundPage: index.html
+      iamConfiguration:
+        uniformBucketLevelAccess:
+          enabled: true
+
+    # Allow everyone to read the bucket
+  - name: cloudresume-public-read
+    type: gcp-types/storage-v1:storage.buckets.iamPolicy
+    properties:
+      bucket: $(ref.my-cloud-resume-bucket.name)
+      role: roles/storage.objectViewer
+      member: allUsers
+  
+  # Create DNS zone
+  - name: queenbcloud-zone
+    type: dns.v1.managedZone
+    properties:
+      name: my-domain-zone
+      dnsName: queenbcloud.com.
+      description: Personal domain
+      visibility: public
+
+  # Create a public IP address
+  - name: cloud-resume-public-ip
+    type: compute.v1.globalAddress
+    properties:
+      name: cloud-resume-public-ip
+
+  # Set up backend bucket
+  - name: my-static-backend1
+    type: compute.beta.backendBucket
+    properties:
+      bucketName: $(ref.my-cloud-resume-bucket.name)
+      description: Backend bucket for static site
+      enableCdn: true
+
+  # Create HTTPS certificate
+  - name: cloud-resume-https-certificate
+    type: compute.v1.sslCertificate
+    properties:
+      type: MANAGED
+      managed:
+        domains:
+          - queenbcloud.com
+
+  # Create the load balancer (URL Map)
+  - name: cloud-resume-lb-url-map
+    type: compute.v1.urlMap
+    properties:
+      defaultService: $(ref.my-static-site-backend.selfLink)
+
+  # Add TargetHTTPSProxy
+  - name: cloud-resume-target-proxy
+    type: compute.v1.targetHttpsProxy
+    properties:
+      urlMap: $(ref.cloud-resume-lb-url-map.selfLink)
+      sslCertificates:
+        - $(ref.cloud-resume-https-certificate.selfLink)
+
+  # Add the global forwarding rule
+  - name: cloud-resume-forwarding-rule
+    type: compute.v1.globalForwardingRule
+    properties:
+      loadBalancingScheme: EXTERNAL
+      IPAddress: $(ref.cloud-resume-public-ip.address)
+      IPProtocol: TCP
+      portRange: 443
+      target: $(ref.cloud-resume-target-proxy.selfLink)
+
+
+#gcloud deployment-manager deployments create my-resume-deploy --template resume.jinja  --properties region:us-central1
