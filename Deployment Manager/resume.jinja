@@ -1,7 +1,7 @@
 resources:
   # Create bucket
   - name: my-cloud-resume-bucket
-    type: gcp-types/storage-v1:storage.buckets
+    type: storage.v1.bucket
     properties:
       name: my-cloud-resume-bucket
       storageClass: STANDARD
@@ -15,7 +15,7 @@ resources:
 
     # Allow everyone to read the bucket
   - name: cloudresume-public-read
-    type: gcp-types/storage-v1:storage.buckets.iamPolicy
+    type: storage.v1.bucketIamPolicy
     properties:
       bucket: $(ref.my-cloud-resume-bucket.name)
       role: roles/storage.objectViewer
@@ -26,7 +26,7 @@ resources:
     type: dns.v1.managedZone
     properties:
       name: my-domain-zone
-      dnsName: queenbcloud.com.
+      dnsName: queenbcloud.com
       description: Personal domain
       visibility: public
 
@@ -38,7 +38,7 @@ resources:
 
   # Set up backend bucket
   - name: my-static-backend1
-    type: compute.beta.backendBucket
+    type: compute.v1.backendBucket
     properties:
       bucketName: $(ref.my-cloud-resume-bucket.name)
       description: Backend bucket for static site
@@ -57,7 +57,7 @@ resources:
   - name: cloud-resume-lb-url-map
     type: compute.v1.urlMap
     properties:
-      defaultService: $(ref.my-staticbackend1.selfLink)
+      defaultService: $(ref.my-static-backend1.selfLink)
 
   # Add TargetHTTPSProxy
   - name: cloud-resume-target-proxy
